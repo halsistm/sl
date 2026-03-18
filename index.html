@@ -8,9 +8,9 @@
 <title>SLIME SURVIVORS</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;background:#000;overflow:hidden;touch-action:none;user-select:none}
-body{display:flex;justify-content:center;align-items:center}
-canvas{display:block;image-rendering:pixelated}
+html{height:100%}
+body{width:100%;height:100%;background:#000;overflow:hidden;touch-action:none;user-select:none;display:block;position:fixed;top:0;left:0}
+canvas{display:block;position:fixed;top:0;left:0;image-rendering:pixelated;image-rendering:crisp-edges}
 </style>
 </head>
 <body>
@@ -1853,8 +1853,10 @@ ctx.textAlign = ‘left’;
 // ═══════════════════════════════════════════════════════════════
 let lastTs = 0;
 function loop(ts) {
-const dt = Math.min((ts - lastTs) / 1000, 0.05); lastTs = ts; gTime += dt;
 requestAnimationFrame(loop);
+try {
+const dt = Math.min((ts - lastTs) / 1000, 0.05); lastTs = ts; gTime += dt;
+ctx.clearRect(0, 0, C.width, C.height);
 
 if (state === ‘title’) {
 for (const sl of titleSlimes) {
@@ -1930,6 +1932,7 @@ if (state === ‘levelup’) { drawHUD(); drawLevelUp(); }
 if (state === ‘boss_warning’) drawBossWarning();
 if (state === ‘jesus_clear’) drawClear();
 if (state === ‘stage_clear’) drawStageClear();
+} catch(e) { console.error(‘loop error:’, e); }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1939,18 +1942,20 @@ if (state === ‘stage_clear’) drawStageClear();
 // loadイベント後に確実に初期化する
 function _startGame() {
 resize();
-// 念のため高さが0なら少し待って再実行
-if (!W || !H) {
-setTimeout(_startGame, 50);
+if (!W || !H || W < 10 || H < 10) {
+setTimeout(_startGame, 100);
 return;
 }
+try {
 initTitle();
+} catch(e) { console.error(‘initTitle error:’, e); }
 requestAnimationFrame(loop);
 }
-if (document.readyState === ‘complete’) {
-_startGame();
+// DOMContentLoaded + 短いディレイで確実に
+if (document.readyState === ‘loading’) {
+document.addEventListener(‘DOMContentLoaded’, () => setTimeout(_startGame, 50));
 } else {
-window.addEventListener(‘load’, _startGame);
+setTimeout(_startGame, 50);
 }
 </script>
 
