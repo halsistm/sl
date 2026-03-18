@@ -23,7 +23,7 @@ const C = document.getElementById('c');
 const ctx = C.getContext('2d');
 let W, H;
 function resize() { W = C.width = Math.min(window.innerWidth, 430); H = C.height = window.innerHeight; }
-resize(); window.addEventListener('resize', resize);
+window.addEventListener('resize', resize);
 
 // ── ワールドサイズ & カメラ ──────────────────────────────────────
 const WW = 2400, WH = 2400;
@@ -1935,8 +1935,23 @@ if (state === ‘stage_clear’) drawStageClear();
 // ═══════════════════════════════════════════════════════════════
 // START
 // ═══════════════════════════════════════════════════════════════
+// iOS Safariでwindow.innerHeightが0になる問題対策
+// loadイベント後に確実に初期化する
+function _startGame() {
+resize();
+// 念のため高さが0なら少し待って再実行
+if (!W || !H) {
+setTimeout(_startGame, 50);
+return;
+}
 initTitle();
 requestAnimationFrame(loop);
+}
+if (document.readyState === ‘complete’) {
+_startGame();
+} else {
+window.addEventListener(‘load’, _startGame);
+}
 </script>
 
 </body>
