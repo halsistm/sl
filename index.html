@@ -7,10 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>SLIME SURVIVORS</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html{height:100%}
-body{width:100%;height:100%;background:#000;overflow:hidden;touch-action:none;user-select:none;display:block;position:fixed;top:0;left:0}
-canvas{display:block;position:fixed;top:0;left:0;image-rendering:pixelated;image-rendering:crisp-edges}
+*{margin:0;padding:0}
+body{background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+canvas{display:block;image-rendering:pixelated;image-rendering:-webkit-optimize-contrast;image-rendering:crisp-edges}
 </style>
 </head>
 <body>
@@ -22,7 +21,12 @@ canvas{display:block;position:fixed;top:0;left:0;image-rendering:pixelated;image
 const C = document.getElementById('c');
 const ctx = C.getContext('2d');
 let W, H;
-function resize() { W = C.width = Math.min(window.innerWidth, 430); H = C.height = window.innerHeight; }
+function resize() {
+  const sw = window.innerWidth || document.documentElement.clientWidth || 375;
+  const sh = window.innerHeight || document.documentElement.clientHeight || 667;
+  W = C.width = Math.min(sw, 430);
+  H = C.height = sh;
+}
 window.addEventListener('resize', resize);
 
 // ── ワールドサイズ & カメラ ──────────────────────────────────────
@@ -630,7 +634,7 @@ const ta = Math.min(1, (this.jesusT - 28) / 2);
 ctx.save(); ctx.globalAlpha = ta; ctx.textAlign = ‘center’;
 ctx.shadowColor = ‘rgba(255,255,180,1)’; ctx.shadowBlur = 18;
 ctx.fillStyle = ‘#ffffc8’; ctx.font = `bold 18px serif`;
-ctx.fillText(‘✝ 浄化 ✝’, this.x, this.y - 75);
+ctx.fillText(’+ 浄化 +’, this.x, this.y - 75);
 ctx.restore();
 }
 }
@@ -1204,7 +1208,7 @@ setTimeout(() => {
 if (state !== ‘boss_warning’ && state !== ‘play’) return;
 state = ‘play’;
 satan = new SatanSlime(WW/2 + (Math.random()-0.5)*200, WH/2 + (Math.random()-0.5)*200);
-bossAnnounce = { name: ‘🔥 サタンスライム降臨！！’, t: 5 };
+bossAnnounce = { name: ‘[FIRE] サタンスライム降臨！！’, t: 5 };
 if (navigator.vibrate) navigator.vibrate([60,20,60,20,120,30,180]);
 }, 3500);
 }
@@ -1365,7 +1369,7 @@ ctx.strokeStyle=’#ff3300’; ctx.lineWidth=1.5; ctx.strokeRect(bx-1,by2-1,bw+2
 // 名前
 ctx.save(); ctx.textAlign=‘center’; ctx.font=‘bold 13px serif’;
 ctx.fillStyle=’#ff4444’; ctx.shadowColor=’#cc0000’; ctx.shadowBlur=12;
-ctx.fillText(‘🔥 サタンスライム 🔥’,this.x,by2-7);
+ctx.fillText(’[FIRE] サタンスライム [FIRE]’,this.x,by2-7);
 ctx.restore();
 }
 }
@@ -1474,7 +1478,7 @@ ctx.strokeStyle = ‘#55cc00’; ctx.strokeRect(bx - 1, xy - 1, xw + 2, 10);
 ctx.fillStyle = ‘#fff’; ctx.font = ‘bold 8px monospace’; ctx.fillText(`Lv.${player.level}`, bx + 4, xy + 7);
 ctx.fillStyle = PAL.wave; ctx.font = ‘bold 11px monospace’; ctx.textAlign = ‘right’;
 ctx.fillText(`ST${stageNum} Wave ${waveNum}`, W - 8, 18); ctx.fillText(`${score}pt`, W - 8, 32);
-ctx.fillStyle = PAL.dim; ctx.font = ‘8px monospace’; ctx.fillText(`⬡ ${shrines.filter(s=>s.lit).length}/6`, W - 8, 46);
+ctx.fillStyle = PAL.dim; ctx.font = ‘8px monospace’; ctx.fillText(`[HEX] ${shrines.filter(s=>s.lit).length}/6`, W - 8, 46);
 ctx.textAlign = ‘left’;
 // ジョイスティック表示
 if (joy.on) {
@@ -1496,7 +1500,7 @@ const ta = Math.min(1, bossAnnounce.t * 2);
 ctx.save(); ctx.textAlign = ‘center’; ctx.globalAlpha = ta;
 ctx.shadowColor = ‘#ff3300’; ctx.shadowBlur = 20;
 ctx.fillStyle = ‘#ff6633’; ctx.font = ‘bold 18px serif’;
-ctx.fillText(‘⚠ ’ + bossAnnounce.name + ’ 出現！’, W/2, H*0.22);
+ctx.fillText(’[!!] ’ + bossAnnounce.name + ’ 出現！’, W/2, H*0.22);
 ctx.shadowBlur = 0; ctx.font = ‘11px monospace’; ctx.fillStyle = ‘#ffaa88’;
 ctx.fillText(‘ボスを倒して祠を解放せよ’, W/2, H*0.22 + 22);
 ctx.restore();
@@ -1563,12 +1567,12 @@ ctx.restore();
 // LEVEL UP
 // ═══════════════════════════════════════════════════════════════
 const UPGRADES = [
-{ n: ‘⚔️ 剣 ＋１’, d: ‘剣の本数が増える’, fn: p => { p.sCount = Math.min(p.sCount + 1, 6); p.rebuild(); } },
-{ n: ‘💨 剣速 ↑’, d: ‘剣の回転が速くなる’, fn: p => { p.sSpeed *= 1.28; } },
-{ n: ‘💥 剣力 ↑’, d: ‘攻撃ダメージが上がる’, fn: p => { p.sDmg += 18; } },
-{ n: ‘📏 剣長 ↑’, d: ‘剣がどんどん伸びる’, fn: p => { p.sLen += 18; } },
-{ n: ‘❤️ 回復’, d: ‘HPを大きく回復’, fn: p => { p.hp = Math.min(p.maxHp, p.hp + 60); } },
-{ n: ‘❤️ HP ↑’, d: ‘最大HPが増える’, fn: p => { p.maxHp += 30; p.hp = Math.min(p.hp + 30, p.maxHp); } },
+{ n: ‘剣 +1’, d: ‘剣の本数が増える’, fn: p => { p.sCount = Math.min(p.sCount + 1, 6); p.rebuild(); } },
+{ n: ‘剣速 UP’, d: ‘剣の回転が速くなる’, fn: p => { p.sSpeed *= 1.28; } },
+{ n: ‘剣力 UP’, d: ‘攻撃ダメージが上がる’, fn: p => { p.sDmg += 18; } },
+{ n: ‘剣長 UP’, d: ‘剣がどんどん伸びる’, fn: p => { p.sLen += 18; } },
+{ n: ‘HP回復’, d: ‘HPを大きく回復’, fn: p => { p.hp = Math.min(p.maxHp, p.hp + 60); } },
+{ n: ‘HP UP’, d: ‘最大HPが増える’, fn: p => { p.maxHp += 30; p.hp = Math.min(p.hp + 30, p.maxHp); } },
 ];
 function doLevelUp() {
 if (state !== ‘play’ && state !== ‘jesus’) return;
@@ -1591,7 +1595,7 @@ levelChoices[i].fn(player); state = levelChoices._prevState || ‘play’; retur
 function drawLevelUp() {
 ctx.fillStyle = ‘rgba(0,0,12,0.88)’; ctx.fillRect(0, 0, W, H);
 ctx.save(); ctx.textAlign = ‘center’; ctx.shadowBlur = 16; ctx.shadowColor = PAL.xp;
-ctx.fillStyle = PAL.wave; ctx.font = ‘bold 20px monospace’; ctx.fillText(‘⬆ LEVEL UP !’, W / 2, 72);
+ctx.fillStyle = PAL.wave; ctx.font = ‘bold 20px monospace’; ctx.fillText(’[UP] LEVEL UP !’, W / 2, 72);
 ctx.shadowBlur = 0; ctx.fillStyle = ‘#aaa’; ctx.font = ‘11px monospace’; ctx.fillText(`Level ${player.level}`, W / 2, 92);
 ctx.restore();
 const cw = W * 0.82, ch = 70, cx = (W - cw) / 2, cy0 = 130, gap = 82;
@@ -1676,7 +1680,7 @@ if(textPhase > 0){
 ctx.save(); ctx.textAlign=‘center’; ctx.globalAlpha=textPhase;
 ctx.shadowColor=’#ff6600’; ctx.shadowBlur=30;
 ctx.fillStyle=’#ff8844’; ctx.font=`bold ${22+Math.sin(gTime*3)*2}px serif`;
-ctx.fillText(‘🔥 STAGE 1 CLEAR 🔥’, W/2, H/2-55);
+ctx.fillText(’[FIRE] STAGE 1 CLEAR [FIRE]’, W/2, H/2-55);
 ctx.shadowBlur=0; ctx.fillStyle=’#ffcc88’; ctx.font=‘13px monospace’;
 ctx.fillText(‘サタンスライムを倒した！’, W/2, H/2-22);
 ctx.fillStyle=’#ffffff’; ctx.font=‘12px monospace’;
@@ -1684,7 +1688,7 @@ ctx.fillText(`Score: ${score}`, W/2, H/2+8);
 ctx.fillText(`Wave: ${waveNum}  Level: ${player?player.level:1}`, W/2, H/2+28);
 ctx.shadowColor=’#ffaa00’; ctx.shadowBlur=12;
 ctx.fillStyle=’#ffdd44’; ctx.font=‘bold 13px monospace’;
-ctx.fillText(‘▶ STAGE 2 へ続く…’, W/2, H/2+58);
+ctx.fillText(’> STAGE 2 へ続く…’, W/2, H/2+58);
 // 5秒後に自動でステージ2開始
 if(clearTimer > 5){
 startStage2();
@@ -1726,7 +1730,7 @@ if (textPhase > 0) {
 ctx.save(); ctx.textAlign = “center”; ctx.globalAlpha = textPhase;
 ctx.shadowColor = “#dd99ff”; ctx.shadowBlur = 28;
 ctx.fillStyle = “#ffffff”; ctx.font = `bold ${28 + Math.sin(gTime * 2) * 2}px serif`;
-ctx.fillText(“✨ STAGE 2 CLEAR ✨”, W/2, H/2 - 44);
+ctx.fillText(”[STAR] STAGE 2 CLEAR [STAR]”, W/2, H/2 - 44);
 ctx.shadowBlur = 0; ctx.font = “14px monospace”;
 ctx.fillText(`Score: ${score}`, W/2, H/2 - 4);
 ctx.fillText(`Wave: ${waveNum}  Level: ${player ? player.level : 1}`, W/2, H/2 + 22);
@@ -1799,7 +1803,7 @@ ctx.fillStyle = `rgba(30,0,0,${0.85*f})`; ctx.fillRect(0,0,W,H);
 ctx.save(); ctx.textAlign=‘center’; ctx.globalAlpha=f;
 ctx.shadowColor=’#ff0000’; ctx.shadowBlur=30;
 ctx.fillStyle=’#ff3333’; ctx.font=`bold ${24+Math.sin(gTime*8)*3}px serif`;
-ctx.fillText(‘⚠ WARNING ⚠’,W/2,H/2-60);
+ctx.fillText(’[!!] WARNING [!!]’,W/2,H/2-60);
 ctx.shadowBlur=20;
 ctx.fillStyle=’#ffcc00’; ctx.font=‘bold 28px serif’;
 ctx.fillText(‘サタンスライム’,W/2,H/2-10);
