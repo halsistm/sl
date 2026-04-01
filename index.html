@@ -7,8 +7,8 @@
 <title>SLIME SURVIVORS</title>
 <style>
 *{margin:0;padding:0}
-body{background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
-canvas{display:block;image-rendering:pixelated;image-rendering:-webkit-optimize-contrast;image-rendering:crisp-edges}
+body{background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh}
+canvas{display:block;image-rendering:pixelated;image-rendering:-webkit-optimize-contrast;image-rendering:crisp-edges;transform-origin:center center;}
 
 </style>
 </head>
@@ -26,8 +26,16 @@ let W, H;
 function resize() {
   const sw = window.innerWidth || document.documentElement.clientWidth || 375;
   const sh = window.innerHeight || document.documentElement.clientHeight || 667;
+  // ゲーム内部解像度（モバイルサイズ固定）
   W = C.width = Math.min(sw, 430);
-  H = C.height = sh;
+  H = C.height = Math.min(sh, 932);
+  // PC: CSSスケールで画面全体にフィット
+  const scaleX = window.innerWidth / W;
+  const scaleY = window.innerHeight / H;
+  const scale = Math.min(scaleX, scaleY);
+  C.style.width  = W + 'px';
+  C.style.height = H + 'px';
+  C.style.transform = `scale(${scale})`;
 }
 window.addEventListener('resize', resize);
 
@@ -77,11 +85,12 @@ const joy = {
 C.addEventListener('touchstart', e => {
   e.preventDefault();
   for (const t of e.changedTouches) {
+    const gx = toGameX(t.clientX), gy = toGameY(t.clientY);
     if (state === 'title' || state === 'gameover') { initGame(); return; }
-    if (state === 'levelup') { tapLevelUp(t.clientX, t.clientY); return; }
+    if (state === 'levelup') { tapLevelUp(gx, gy); return; }
     if ((state === 'play' || state === 'jesus') && !joy.on) {
       joy.on = true; joy.id = t.identifier;
-      joy.bx = t.clientX; joy.by = t.clientY;
+      joy.bx = gx; joy.by = gy;
       joy.dx = 0; joy.dy = 0;
     }
   }
@@ -90,7 +99,8 @@ C.addEventListener('touchmove', e => {
   e.preventDefault();
   for (const t of e.changedTouches) {
     if (t.identifier !== joy.id) continue;
-    const ox = t.clientX - joy.bx, oy = t.clientY - joy.by;
+    const gx = toGameX(t.clientX), gy = toGameY(t.clientY);
+    const ox = gx - joy.bx, oy = gy - joy.by;
     const len = Math.sqrt(ox*ox + oy*oy);
     if (len > joy.R) { joy.dx = ox/len; joy.dy = oy/len; }
     else { joy.dx = ox/joy.R; joy.dy = oy/joy.R; }
@@ -102,10 +112,27 @@ C.addEventListener('touchend', e => {
     if (t.identifier === joy.id) { joy.on = false; joy.dx = 0; joy.dy = 0; }
   }
 }, { passive: false });
+// -- スケール補正 --
+function getScale() {
+  const scaleX = window.innerWidth / W;
+  const scaleY = window.innerHeight / H;
+  return Math.min(scaleX, scaleY);
+}
+function toGameX(clientX) {
+  const s = getScale();
+  const offsetX = (window.innerWidth - W * s) / 2;
+  return (clientX - offsetX) / s;
+}
+function toGameY(clientY) {
+  const s = getScale();
+  const offsetY = (window.innerHeight - H * s) / 2;
+  return (clientY - offsetY) / s;
+}
+
 // PC
 C.addEventListener('click', e => {
   if (state === 'title' || state === 'gameover') { initGame(); return; }
-  if (state === 'levelup') { tapLevelUp(e.clientX, e.clientY); return; }
+  if (state === 'levelup') { tapLevelUp(toGameX(e.clientX), toGameY(e.clientY)); return; }
 });
 
 // ===============================================================
