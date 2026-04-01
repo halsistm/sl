@@ -113,20 +113,15 @@ C.addEventListener('touchend', e => {
   }
 }, { passive: false });
 // -- スケール補正 --
-function getScale() {
-  const scaleX = window.innerWidth / W;
-  const scaleY = window.innerHeight / H;
-  return Math.min(scaleX, scaleY);
-}
+// getBoundingClientRect() を使うことで transform・flexbox・
+// iOSセーフエリア・アドレスバーによるズレをすべて解消する
 function toGameX(clientX) {
-  const s = getScale();
-  const offsetX = (window.innerWidth - W * s) / 2;
-  return (clientX - offsetX) / s;
+  const rect = C.getBoundingClientRect();
+  return (clientX - rect.left) * (W / rect.width);
 }
 function toGameY(clientY) {
-  const s = getScale();
-  const offsetY = (window.innerHeight - H * s) / 2;
-  return (clientY - offsetY) / s;
+  const rect = C.getBoundingClientRect();
+  return (clientY - rect.top) * (H / rect.height);
 }
 
 // PC
