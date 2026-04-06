@@ -59,7 +59,7 @@ function camUpdate() {
   if (!player) return;
   // 剣の到達距離だけを基準にズームを計算（上限なし）
   const swordReach = 32 + player.sLen; // グリップ + 刃の長さ
-  cam.targetZoom = Math.max(0.08, 80 / swordReach);
+  cam.targetZoom = Math.max(0.08, 110 / swordReach);
   cam.zoom += (cam.targetZoom - cam.zoom) * 0.025;
   const vw = W / cam.zoom, vh = H / cam.zoom;
   cam.x = Math.max(0, Math.min(currentWW - vw, player.x - vw / 2));
